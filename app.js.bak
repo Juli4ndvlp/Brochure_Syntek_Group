@@ -11,8 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initModals();
   initTouchGestures();
   initScrollSpy();
-  initShowcaseReel();
-  initScrollReveals();
 });
 
 /* ==========================================================================
@@ -161,8 +159,8 @@ function initStepper() {
 let currentLightboxIndex = -1;
 
 function initModals() {
-  window.openLightbox = function(imgTarget, title, category, desc, specs) {
-    currentLightboxIndex = (typeof imgTarget === 'number') ? imgTarget : -1;
+  window.openLightbox = function(imgIndex, title, category, desc, specs) {
+    currentLightboxIndex = imgIndex;
     const lightboxModal = document.getElementById('lightboxModal');
     const imgBox = document.getElementById('lightboxImgContainer');
     const titleEl = document.getElementById('lightboxTitle');
@@ -171,23 +169,18 @@ function initModals() {
     const specsEl = document.getElementById('lightboxSpecs');
     const quoteBtn = document.getElementById('lightboxQuoteBtn');
 
-    if (imgBox) {
-      if (typeof imgTarget === 'string') {
-        imgBox.innerHTML = `<img src="${imgTarget}" alt="${title || 'Proyecto'}" style="max-height: 75vh; max-width: 100%; width: auto; height: auto; object-fit: contain; border-radius: var(--radius-sm); display: block; margin: 0 auto; box-shadow: var(--shadow-lg);">`;
-      } else if (typeof imgTarget === 'number' && window.allImgTags && window.allImgTags[imgTarget]) {
-        imgBox.innerHTML = window.allImgTags[imgTarget];
-      }
+    if (window.allImgTags && window.allImgTags[imgIndex]) {
+      imgBox.innerHTML = window.allImgTags[imgIndex];
     }
-    
-    if (titleEl) titleEl.textContent = title || 'Detalle de Fabricación';
-    if (categoryEl) categoryEl.textContent = (category || 'ESTRUCTURA').toUpperCase();
-    if (descEl) descEl.textContent = desc || '';
-    if (specsEl) specsEl.textContent = specs || 'Fabricación en acero estructural y maderas macizas según requerimiento.';
+    if (titleEl) titleEl.textContent = title;
+    if (categoryEl) categoryEl.textContent = category.toUpperCase();
+    if (descEl) descEl.textContent = desc;
+    if (specsEl) specsEl.textContent = specs;
 
     if (quoteBtn) {
       quoteBtn.onclick = function() {
         closeLightbox();
-        openQuoteModal(title || 'Estructura');
+        openQuoteModal(title);
       };
     }
 
@@ -240,7 +233,7 @@ function initModals() {
 
     const whatsappText = `Hola SYNTEK GROUP, mi nombre es ${encodeURIComponent(clientName)}. Deseo cotizar: %0A- *Tipo:* ${encodeURIComponent(itemType)}%0A- *Material:* ${encodeURIComponent(material)}%0A- *Ubicación:* ${encodeURIComponent(location)}%0A- *Detalles:* ${encodeURIComponent(details)}`;
 
-    window.open(`https://wa.me/573142934415?text=${whatsappText}`, '_blank');
+    window.open(`https://wa.me/573000000000?text=${whatsappText}`, '_blank');
     closeQuoteModal();
   };
 
@@ -339,100 +332,4 @@ function initScrollSpy() {
       }
     });
   });
-}
-
-
-/* ==========================================================================
-   8. SHOWCASE REEL & MARQUEE INTERACTIVITY
-   ========================================================================== */
-function initShowcaseReel() {
-  const reelTrack = document.getElementById('reelTrack');
-  const pauseBtn = document.getElementById('reelPauseBtn');
-  const prevBtn = document.getElementById('reelPrevBtn');
-  const nextBtn = document.getElementById('reelNextBtn');
-  const wrap = document.getElementById('reelMarqueeWrap');
-
-  if (!reelTrack) return;
-
-  let isPaused = false;
-  let manualOffset = 0;
-
-  if (pauseBtn) {
-    pauseBtn.addEventListener('click', () => {
-      isPaused = !isPaused;
-      if (isPaused) {
-        reelTrack.classList.add('is-paused');
-        pauseBtn.textContent = '▶';
-        pauseBtn.title = 'Reanudar desplazamiento';
-      } else {
-        reelTrack.classList.remove('is-paused');
-        pauseBtn.textContent = '⏸';
-        pauseBtn.title = 'Pausar desplazamiento';
-      }
-    });
-  }
-
-  if (prevBtn && wrap) {
-    prevBtn.addEventListener('click', () => {
-      wrap.scrollBy({ left: -360, behavior: 'smooth' });
-    });
-  }
-
-  if (nextBtn && wrap) {
-    nextBtn.addEventListener('click', () => {
-      wrap.scrollBy({ left: 360, behavior: 'smooth' });
-    });
-  }
-
-  // Header compacting on scroll
-  const navHeader = document.querySelector('.nav-header');
-  window.addEventListener('scroll', () => {
-    if (window.scrollY > 40) {
-      if (navHeader) navHeader.classList.add('scrolled');
-    } else {
-      if (navHeader) navHeader.classList.remove('scrolled');
-    }
-  }, { passive: true });
-}
-
-/* ==========================================================================
-   9. STRUCTURES SECTION FILTERING
-   ========================================================================== */
-window.selectStructTab = function(category, btnEl) {
-  document.querySelectorAll('.struct-tab-btn').forEach(btn => btn.classList.remove('active'));
-  if (btnEl) btnEl.classList.add('active');
-
-  const items = document.querySelectorAll('.struct-subcard');
-  items.forEach(item => {
-    const itemCat = item.getAttribute('data-struct-cat') || '';
-    if (category === 'all' || itemCat.includes(category)) {
-      item.style.display = 'flex';
-    } else {
-      item.style.display = 'none';
-    }
-  });
-};
-
-/* ==========================================================================
-   10. SCROLL REVEAL OBSERVER
-   ========================================================================== */
-function initScrollReveals() {
-  const revealElements = document.querySelectorAll('.reveal-on-scroll');
-  if ('IntersectionObserver' in window) {
-    const observer = new IntersectionObserver((entries, obs) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-revealed');
-          obs.unobserve(entry.target);
-        }
-      });
-    }, {
-      threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px'
-    });
-
-    revealElements.forEach(el => observer.observe(el));
-  } else {
-    revealElements.forEach(el => el.classList.add('is-revealed'));
-  }
 }
